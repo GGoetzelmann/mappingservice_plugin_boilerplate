@@ -1,0 +1,13 @@
+[project]
+name = "boilerplate_plugin"
+version = "0.0.1rc1"
+description = "Demonstration how to create plugin for KITDM mapping service"
+
+[tool.plugin]
+name = "Boilerplate Plugin"
+description = "Demonstration how to create plugin for KITDM mapping service"
+input_mimes = ["image/tiff", "image/jpg", "image/png"]
+output_mimes = ["image/tiff", "image/jpg", "image/png"]
+
+[project.urls]
+repository = "https://github.com/GGoetzelmann/mappingservice_plugin_boilerplate"

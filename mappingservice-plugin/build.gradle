@@ -1,0 +1,71 @@
+import org.tomlj.Toml
+
+plugins {
+    id 'io.spring.dependency-management' version "1.1.7"
+    id 'org.springframework.boot' version "3.4.4"
+    id 'java'
+}
+
+group 'edu.kit.datamanager'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.springframework:spring-core:6.2.5'
+    compileOnly 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'org.tomlj:tomlj:1.1.0'
+    compileOnly files("src/main/lib/mapping-service-plain.jar")
+}
+
+if (System.getenv('VERSION_OVERRIDE_BY_BRANCH')) {
+    project.version = System.getenv('VERSION_OVERRIDE_BY_BRANCH')
+} else {
+    def rDir = new File(projectDir, '../')
+    def somesyFile = new File(rDir, 'pyproject.toml')
+    def toml = Toml.parse(somesyFile.toPath())
+    project.version = toml.get("project.version")
+}
+
+tasks.register('printVersion') {
+    println project.version
+}
+
+//Task for creating a resource file with the version info
+tasks.register("generateVersionProps", WriteProperties) { t ->
+    def generatedResourcesDir = project.layout.buildDirectory.dir(["resources", "main"].join(File.separator))
+    def outputFile = generatedResourcesDir.map { it.file("pluginversion.properties") }
+
+    t.destinationFile = outputFile.get().asFile
+    t.property("version", project.version)
+}
+
+tasks.register('copyTomlToResources', Copy) {
+    from '../pyproject.toml'
+    into "${layout.buildDirectory.get()}/generated-resources"
+}
+
+processResources {
+    dependsOn tasks.copyTomlToResources
+    from("${layout.buildDirectory.get()}/generated-resources") {
+        include 'pyproject.toml'
+    }
+}
+
+resolveMainClassName.dependsOn("generateVersionProps")
+
+jar {
+    dependsOn(generateVersionProps)
+    archiveFileName
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+bootJar {
+    enabled = false
+}
