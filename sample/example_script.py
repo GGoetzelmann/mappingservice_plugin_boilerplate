@@ -19,6 +19,7 @@ def map_input_to_output(input_file_p, output_file_p, map_file_p):
         # load the image
         logging.info("Reading input file: {}".format(input_file_p))
         im = Image.open(input_file_p)
+        input_format = im.format
         im = im.convert('RGBA')
         npimg = np.array(im)
 
@@ -34,7 +35,7 @@ def map_input_to_output(input_file_p, output_file_p, map_file_p):
 
         logging.info("Writing output file: {}".format(output_file_p))
         output_image = Image.fromarray(npimg)
-        output_image.save(output_file_p)
+        output_image.save(output_file_p, format=input_format)
 
 def run_cli():
 
