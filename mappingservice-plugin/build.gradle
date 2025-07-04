@@ -6,7 +6,7 @@ plugins {
     id 'java'
 }
 
-group 'edu.kit.datamanager'
+group 'edu.kit.datamanager.mappingservice.plugins'
 
 repositories {
     mavenLocal()

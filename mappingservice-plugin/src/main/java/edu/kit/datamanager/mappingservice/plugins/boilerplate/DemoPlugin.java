@@ -29,7 +29,7 @@ public class DemoPlugin implements IMappingPlugin{
     private MimeType[] OUTPUT_MIME_TYPES;
     private Path dir;
 
-    public SEMImagePlugin() {
+    public DemoPlugin() {
         loadVersion();
         loadTomlConfig();
     }
@@ -116,7 +116,7 @@ public class DemoPlugin implements IMappingPlugin{
 
     @Override
     public void setup() {
-        LOGGER.info("Checking and installing dependencies for the plugin: {}" NAME);
+        LOGGER.info("Checking and installing dependencies for the plugin: {}", NAME);
         //TODO: test for minimal python version?
         try {
             LOGGER.info("Cloning git repository {}, Tag {}", REPOSITORY, TAG);

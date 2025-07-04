@@ -35,9 +35,8 @@ jobs:
         JAR_VERSION=$(./mappingservice-plugin/gradlew printVersion -q -p ./mappingservice-plugin/)
         JAR_VERSION=${JAR_VERSION##*$'\n'}
         ./mappingservice-plugin/gradlew clean jar -p ./mappingservice-plugin/
-        ls -ll ./mappingservice-plugin/build/libs/
-        echo "JAR_VERSION=${JAR_VERSION}"
-        mv -v ./mappingservice-plugin/build/libs/SEMImagePlugin-$JAR_VERSION-plain.jar ./mappingservice-plugin/build/libs/SEMplugin.jar
+        PLAIN_JAR=$(find ./mappingservice-plugin/build/libs/ -name '*-plain.jar' | head -n 1)
+        mv -v "$PLAIN_JAR" ./mappingservice-plugin/build/libs/plugin.jar
       env:
         VERSION_OVERRIDE_BY_BRANCH: ${{ steps.extract_branch.outputs.branch }}
 
@@ -45,7 +44,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
           name: jar-jdk${{ matrix.versions.jdk }}
-          path: ./mappingservice-plugin/build/libs/SEMplugin.jar
+          path: ./mappingservice-plugin/build/libs/plugin.jar
 
   test:
     runs-on: ${{ matrix.operating-system }}
@@ -73,7 +72,7 @@ jobs:
 
     - name: Run Docker Container # and wait for mapping service to be healthy before proceeding to tests
       run: |
-          docker run -d -p 8095:8095 -e PIP_BREAK_SYSTEM_PACKAGES=1 -v ./plugins/SEMplugin.jar:/spring/mapping-service/plugins/SEMplugin.jar --name mapping4docker ghcr.io/kit-data-manager/mapping-service:${{ matrix.versions.mapping-service }}
+          docker run -d -p 8095:8095 -e PIP_BREAK_SYSTEM_PACKAGES=1 -v ./plugins/plugin.jar:/spring/mapping-service/plugins/plugin.jar --name mapping4docker ghcr.io/kit-data-manager/mapping-service:${{ matrix.versions.mapping-service }}
           echo "Wait for mapping service to be healthy before proceeding to tests"
           while true; do
             if ! docker ps | grep -q mapping4docker; then
