@@ -1,6 +1,7 @@
+import json
+
 from PIL import Image
 import numpy as np
-import csv
 import sys
 import argparse
 import logging
@@ -10,9 +11,10 @@ logging.basicConfig(level=logging.INFO)
 def map_input_to_output(input_file_p, output_file_p, map_file_p):
 
     logging.info("Reading map file: {}".format(map_file_p))
-    with open(map_file_p, newline='') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+    with open(map_file_p, newline='') as json_file:
+        jsondata = json.load(json_file)
 
+        assert "color_mapping" in jsondata.keys()
 
         # load the image
         logging.info("Reading input file: {}".format(input_file_p))
@@ -22,12 +24,11 @@ def map_input_to_output(input_file_p, output_file_p, map_file_p):
 
         red, green, blue, alpha = npimg.T  # Temporarily unpack the bands for readability
 
-        for row in csvreader:
-            logging.info("Processing color mapping: {}".format(row))
-            col1 = eval(row[0])
-            col2 = eval(row[1])
+        for c1, c2 in jsondata['color_mapping'].items():
+            logging.info("Processing color mapping: {} to {}".format(c1, c2))
+            col1 = eval(c1)
+            col2 = eval(c2)
 
-            # Replace white with red... (leaves alpha values alone...)
             orig_color = (red == col1[0]) & (blue == col1[1]) & (green == col1[2])
             npimg[..., :-1][orig_color.T] = col2
 

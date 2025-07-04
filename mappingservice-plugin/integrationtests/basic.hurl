@@ -20,9 +20,9 @@ Content-Type: application/csv
 {"mappingId":"{{id1}}","mappingType": "{{mappingType}}","title":"Boilerplate from CI test","description":"","acl":[]}
 --boundary
 Content-Disposition: form-data; name="document"; filename="blob"
-Content-Type: text/tab-separated-values
+Content-Type: application/json
 
-255,0,0 0,255,0
+{"color_mapping": {"255,0,0": "0,255,0"}}
 --boundary--
 ```
 HTTP 201
